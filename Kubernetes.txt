@@ -1,0 +1,99 @@
+Kubernetes Commands
+#################################################################################
+----*** kubectl ***----
+(https://kubernetes.io/docs/reference/kubectl/)
+$ kubectl
+$ kubectl get nodes
+$ kubectl get nodes
+>> Check kubernetes config
+$ cd .kube
+$ nano config
+$ kubectl get nodes -o wide
+$ kubectl get nodes -o yaml
+>> kubectl describe (Human readable)
+$ kubectl describe node/<node>
+$ kubectl describe node <node>
+$ kubectl get nodes
+(get the name)
+$ kubectl describe node/<name>
+
+>> Resource Types
+(https://kubernetes.io/docs/reference/#api-reference)
+
+
+$ kubectl api-resources
+$ kubectl explain <resource>
+$ kubectl explain pod
+
+>>>
+$ kubectl get services
+$ kubectl get pods
+
+>>> Namespaces
+(https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
+$ kubectl get namespaces
+$ kubectl get pods -A
+(List all pods)
+$ kubectl get pods -n <namespace>
+(List pod of a particular namespace)
+
+>> Run a pod
+$ kubectl run pingtest --image alpine ping 1.1.1.1
+$ kubectl get all
+$ kubectl delete pod/pingtest
+
+>>> Creating a deployment
+$ kubectl create deployment pingtest --image alpine -- ping 1.1.1.1
+$ kubectl get all
+$ kubectl create deployment nginx --image nginx
+
+
+>>> Check Logs
+$ kubectl logs deploy/pingtest
+$ kubectl logs deploy/nginx
+$ kubectl logs deploy/pingtest --tail 5
+>>> Get logs from all pods
+$ kubectl logs -l app=pingtest --all-containers -f
+(Show continous logs from all pods)
+
+>>> Create replicas of containers (pods)
+$ kubectl scale deploy/pingtest --replicas 3
+$ kubectl get all
+
+>>> Deleting Pods
+$ watch kubectl get pods
+$ kubectl delete pod/pingtest-649dfd8998-54g4v
+
+>>> Create Cronjob
+$ kubectl create cronjob my-job2 --image=alpine --schedule="*/3 * * * *" sleep 10
+$ kubectl get all
+$ kubectl delete cronjob m-job2
+
+
+>>> Stern Plugin for Logs
+$ (
+set -x; cd "$(mktemp -d)" &&
+OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e
+'s/aarch64$/arm64/')" &&
+KREW="krew-${OS}_${ARCH}" &&
+curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz"
+&&
+tar zxvf "${KREW}.tar.gz" &&
+./"${KREW}" install krew
+)
+$ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+$ kubectl krew
+$ kubectl krew install stern
+$ kubectl stern pingtest
+$ kubectl stern -t pingtest
+(To check tiemstamp)
+
+>>> Decommision a worker
+$ kubectl drain k8s-worker2
+$ kubectl drain k8s-worker2 --ignore-daemonsets
+$ kubectl get pods
+$ kubectl get all
+(Re-comission)
+$ kubectl uncordon k8s-worker2
+$ kubectl get pods
